@@ -9,6 +9,7 @@ public class MenuState : StateMachineBehaviour
     override public void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
         GCScript.inst.menuCanvas.SetActive(true);
+        GCScript.inst.anim.SetTrigger("Transition");  // Debug code to take the pain of button pressing away
     }
 
     // OnStateUpdate is called on each Update frame between OnStateEnter and OnStateExit callbacks
