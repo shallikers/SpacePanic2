@@ -9,16 +9,13 @@ public class EnterMon : StateMachineBehaviour
     override public void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
         ms = animator.GetComponent<MonsterScript>();
-        ms.SetSpeed(0, -1);
+        ms.SetSpeed(0, -1, false);
     }
 
     // OnStateUpdate is called on each Update frame between OnStateEnter and OnStateExit callbacks
     override public void OnStateUpdate(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
-        if(ms.GroundedCheck())
-        {
-            animator.SetBool("Idle", true);
-        }
+        ms.GroundedCheck();
     }
 
     // OnStateExit is called when a transition ends and the state machine finishes evaluating this state

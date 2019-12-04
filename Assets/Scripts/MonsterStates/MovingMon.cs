@@ -9,8 +9,6 @@ public class MovingMon : StateMachineBehaviour
     override public void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
         ms = animator.GetComponent<MonsterScript>();
-        ms.anim.SetFloat("vSpeed", 0);
-        ms.anim.SetFloat("hSpeed", 0);
     }
 
     //OnStateUpdate is called on each Update frame between OnStateEnter and OnStateExit callbacks

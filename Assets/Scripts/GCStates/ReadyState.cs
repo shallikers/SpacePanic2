@@ -24,6 +24,8 @@ public class ReadyState : StateMachineBehaviour
     override public void OnStateExit(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
         GCScript.inst.messageCanvas.SetActive(false);
+
+
     }
 
     // OnStateMove is called right after Animator.OnAnimatorMove()
