@@ -32,6 +32,7 @@ public class LevelState : StateMachineBehaviour
             GameObject go = Instantiate(GCScript.inst.redMonster, spawns[i].transform);
         }
 
+        // and the player
         GCScript.inst.activePlayer = Instantiate(GCScript.inst.playerPrefab);
         GCScript.inst.activePlayer.transform.position = new Vector3(-1.5f, 1f, 0);
 

@@ -7,24 +7,35 @@ public class PlayerScript : MonoBehaviour
     public Animator anim;
     public Rigidbody2D rb;
     public BoxCollider2D bc;
-   //public Bounds bounds;
+    public GameObject digger;
+    GameObject hole;
+
+    //public Bounds bounds;
     public float normalSpeed;
     public float fallSpeed;
 
-    Vector3 leftBottom; // left mray base for checking for floor and ladders left
+    Vector3 left; // left mray base for checking for floor and ladders left
     Vector3 rightBottom; // ray base for checking for floor and ladders right
+    Vector3 leftBottom;
     Vector3 leftCentre;
     Vector3 rightCentre;
+    Vector3 diggerBottom;
     Vector3 leftTop;
     Vector3 rightTop;
     Vector3 centre;
     Vector3 bottom;
     Vector3 top;
+    float diggerOffset;
+    float diggerPositionX;
+
 
     public bool onGround = false;
     public bool ladderUp = false;
     public bool ladderDown = false;
     public float lowestGirder;
+    public bool busy = false;  //(digging or filling)
+    float timer;
+
 
     // Start is called before the first frame update
     void Start()
@@ -41,6 +52,10 @@ public class PlayerScript : MonoBehaviour
             if (girders[i].transform.position.y < lowestGirder)
                 lowestGirder = girders[i].transform.position.y;
         }
+        //digger = GameObject.Find("digger");
+        diggerOffset = digger.transform.localPosition.x * transform.localScale.x;
+        digger.SetActive(false);
+        
         
 
 
@@ -60,6 +75,8 @@ public class PlayerScript : MonoBehaviour
         bottom = new Vector3(bc.bounds.center.x, bc.bounds.min.y);
         centre = new Vector3(bc.bounds.center.x, bc.bounds.center.y);
         top = new Vector3(bc.bounds.center.x, bc.bounds.max.y);
+        
+        
 
         DeterminePosition();
         GetInputAndMove();
@@ -70,10 +87,13 @@ public class PlayerScript : MonoBehaviour
 
     void GetInputAndMove()
     {
+        GameObject girder = null;
         bool left = Input.GetKey(KeyCode.LeftArrow);
         bool right = Input.GetKey(KeyCode.RightArrow);
         bool up = Input.GetKey(KeyCode.UpArrow) && ladderUp;
         bool down = Input.GetKey(KeyCode.DownArrow) && ladderDown;
+        bool dig = Input.GetKey(KeyCode.D);
+        bool fill = Input.GetKey(KeyCode.F);
 
         float hSpeed = 0;
         float vSpeed = 0;
@@ -86,20 +106,194 @@ public class PlayerScript : MonoBehaviour
         {
             vSpeed = 0;
         }
+
         if (hSpeed<0)
         {
-            rb.GetComponent<SpriteRenderer>().flipX = true;
+            //rb.GetComponent<SpriteRenderer>().flipX = true;
+            transform.localScale = new Vector3(-2f, 2f, 1);
         }
         if (hSpeed >0)
         {
-            rb.GetComponent<SpriteRenderer>().flipX = false;
+            //rb.GetComponent<SpriteRenderer>().flipX = false;
+            transform.localScale = new Vector3(2f, 2f, 1);
         }
-        
+
+        if (busy && dig)
+        {
+            // make the hole bigger
+            float t = timer - Time.time;
+            if (t <= 0) t = 0;
+            t = GCScript.inst.digTime - t;
+
+            float s = Mathf.Lerp(0f, GCScript.inst.holeWidth / 2, t / GCScript.inst.digTime);
+            HoleScript hs = hole.GetComponent<HoleScript>();
+            hs.Widen(s);
+
+            // check if we have finished digging
+            if (Time.time >= timer)
+            {
+                busy = false;
+                digger.SetActive(false);
+            }
+        }
+
+        if (dig && !busy && onGround)
+        {
+            bool girderDiggable;
+
+            // calculate where the digger would be
+            if (transform.localScale.x > 0)
+                diggerPositionX = transform.position.x + diggerOffset;
+            else
+                diggerPositionX = transform.position.x - diggerOffset;
+
+            //quantise the digger position to make it easier to line up the holes
+            diggerPositionX = Mathf.Round(diggerPositionX * 10) / 10; 
+
+            // calculate its raycast vectors
+            Vector3 leftDigExtent = new Vector3(diggerPositionX - GCScript.inst.holeWidth / 2,transform.position.y,0);
+            Vector3 rightDigExtent = new Vector3(diggerPositionX + GCScript.inst.holeWidth / 2, transform.position.y, 0);
+            Vector3 centreDigExtent = new Vector3(diggerPositionX, transform.position.y, 0);
+
+            int layermaskBlocks = 1 << 9;
+            int layermaskLaddersHoles = 1 << 8 | 1<<11;
+            Bounds bounds = bc.bounds;
+            bc.enabled = false;
+
+            // floor check
+            RaycastHit2D lefthit = Physics2D.Raycast(leftDigExtent, Vector2.down * bounds.extents.y/5, bounds.extents.y/5, layermaskBlocks);
+            Debug.DrawRay(leftDigExtent, Vector2.down * bounds.extents.y/5, Color.red);
+            RaycastHit2D righthit = Physics2D.Raycast(rightDigExtent, Vector2.down * bounds.extents.y/5, bounds.extents.y/5, layermaskBlocks);
+            Debug.DrawRay(rightDigExtent, Vector2.down * bounds.extents.y/5, Color.red);
+            RaycastHit2D centrehit;
+
+
+            if (lefthit & righthit)
+            {
+                girderDiggable = true;
+                girder = lefthit.rigidbody.gameObject;
+
+            } else girderDiggable = false;
+
+            // ladder & hole check
+            if (girderDiggable)
+            {
+                // ladder & hole check
+                lefthit = Physics2D.Raycast(leftDigExtent, Vector2.down * bounds.extents.y / 5, bounds.extents.y / 5, layermaskLaddersHoles);
+                Debug.DrawRay(leftDigExtent, Vector2.down * bounds.extents.y / 5, Color.red);
+                righthit = Physics2D.Raycast(rightDigExtent, Vector2.down * bounds.extents.y / 5, bounds.extents.y / 5, layermaskLaddersHoles);
+                Debug.DrawRay(rightDigExtent, Vector2.down * bounds.extents.y / 5, Color.red);
+                centrehit = Physics2D.Raycast(centreDigExtent, Vector2.down * bounds.extents.y / 5, bounds.extents.y / 5, layermaskLaddersHoles);
+                Debug.DrawRay(centreDigExtent, Vector2.down * bounds.extents.y / 5, Color.red);
+                if (lefthit || righthit || centrehit) girderDiggable = false; else girderDiggable = true;
+            }
+
+            bc.enabled = true;
+
+            // now if we can dig a hole lets make one
+            if (girderDiggable)
+            {
+                //instantiate the hole
+                hole = Instantiate(GCScript.inst.hole);
+                hole.transform.position = centreDigExtent;
+                hole.transform.localScale = new Vector3(GCScript.inst.holeWidth, hole.transform.localScale.y, 1);
+
+                // find if there is another hole to the right of this hole
+                GameObject rightOtherHole = girder.GetComponent<GirderScript>().rHole;
+                GameObject leftOtherHole = girder.GetComponent<GirderScript>().lHole;
+
+
+                // split the girder
+                GameObject rightGirder = girder.GetComponent<GirderScript>().split(hole.transform.position.x);
+                
+                // tell the hole it is connected to girders
+                hole.GetComponent<HoleScript>().leftGirder = girder;
+                girder.GetComponent<GirderScript>().rHole = hole;
+
+                hole.GetComponent<HoleScript>().rightGirder = rightGirder;
+                rightGirder.GetComponent<GirderScript>().lHole = hole;
+
+                // connect up the holes girder propperly if there is another hole
+                if (rightOtherHole != null)
+                {
+                    rightOtherHole.GetComponent<HoleScript>().leftGirder = rightGirder;
+                    rightGirder.GetComponent<GirderScript>().rHole = rightOtherHole;
+                }
+                if (leftOtherHole != null)
+                {
+
+
+                }
+
+
+
+                // start the dig
+                busy = true;
+                timer = GCScript.inst.digTime + Time.time;
+                digger.SetActive(true);
+            }
+
+
+
+
+
+        }
+
+        if (dig && onGround)
+        {
+            hSpeed = 0;
+            vSpeed = 0;
+        }
 
         rb.velocity = new Vector3(hSpeed, vSpeed, 0);
 
+        if (busy && !dig)
+        {
+            // the hole was not dug
+            digger.SetActive(false);
+            busy = false;
+            hole.GetComponent<HoleScript>().Close();
+        }
+
+        if (fill)
+        {
+            digger.SetActive(true);
+
+            // calculate where the digger would be
+            if (transform.localScale.x > 0)
+                diggerPositionX = transform.position.x + diggerOffset;
+            else
+                diggerPositionX = transform.position.x - diggerOffset;
+            Vector3 centreDigExtent = new Vector3(diggerPositionX, transform.position.y, 0);
+
+            // take a look and see if there is a hole there
+            int layermaskHoles =  1 << 11;
+            Bounds bounds = bc.bounds;
+            RaycastHit2D centrehit = Physics2D.Raycast(centreDigExtent, Vector2.down * bounds.extents.y / 5, bounds.extents.y / 5, layermaskHoles);
+            Debug.DrawRay(centreDigExtent, Vector2.down * bounds.extents.y / 5, Color.red);
+
+            if (centrehit)
+            {
+                HoleScript holeScript = centrehit.rigidbody.gameObject.GetComponent<HoleScript>();
+
+                // temporary test code
+
+                holeScript.Close();
+
+            }
+
+            digger.SetActive(false);
+
+
+
+
+        }
+     
+     
 
     }
+
+ 
 
     void DeterminePosition()
     {
@@ -107,7 +301,6 @@ public class PlayerScript : MonoBehaviour
 
 
         int layermaskBlocks = 1 << 9;
-        int layermaskMonsters = 1 << 10;
         int layermaskLadders = 1 << 8;
         Bounds bounds = bc.bounds;
         bc.enabled = false;

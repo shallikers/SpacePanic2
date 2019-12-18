@@ -7,57 +7,60 @@ public class GirderScript : MonoBehaviour
     float splitTimer;
     public float splitTime = 2f;
     bool splitting = false;
-    GameObject newGirder = null;
+    public float originalSize;
+    public float positionX;
+    SpriteRenderer sr;
+    public GameObject lHole = null;
+    public GameObject rHole = null;
 
     // Start is called before the first frame update
     void Start()
     {
-        
+        sr = GetComponent<SpriteRenderer>();
+        originalSize = sr.size.x;
+        positionX = transform.position.x;    
     }
 
     // Update is called once per frame
     void Update()
-    {
-        // see if the girder is splitting
-        if (splitting)
-        {
-
-            // check to see if the split is complete
-            if (Time.time > splitTimer)
-            {
-                splitting = false;
-                SetGirderBounds(splitTimer);
-            }
-
-        }
+    { 
+        
 
 
     }
 
     public GameObject split(float splitX)
     {
-        SpriteRenderer  sr = gameObject.GetComponent<SpriteRenderer>();
-        if(sr.bounds.min.x + GCScript.inst.holeWidth*1.5f > splitX || sr.bounds.max.x - GCScript.inst.holeWidth *1.5f< splitX)
-        { 
-            Debug.Log("Split position is not on the girder");
-            return null;
-        }
-
         //instantiate a copy of this girder
         GameObject newGirder = Instantiate(gameObject);
-
-        // set the new max of the current girder
-        sr.bounds.SetMinMax(sr.bounds.min, 
-            new Vector3(splitX - GCScript.inst.holeWidth * .5f, sr.bounds.max.y, 0));
-
-        //set the new min of the girder
         SpriteRenderer ngsr = newGirder.GetComponent<SpriteRenderer>();
-        ngsr.bounds.SetMinMax(
-            new Vector3(splitX + GCScript.inst.holeWidth, sr.bounds.min.y, 0),
-            sr.bounds.max );
+
+        // reduce the size of the old girder
+        float oldSize = sr.size.x;
+        sr.size = new Vector2(splitX - transform.position.x, sr.size.y);
+
+        // move the new girder and adjust its size
+        newGirder.transform.position = new Vector3(splitX, transform.position.y, 0);
+        ngsr.size = new Vector2(oldSize - sr.size.x, ngsr.size.y);
+
+        // now set the original sizes
+        originalSize = sr.size.x;
 
         return newGirder;
     }
+
+    public void shrinkLeft(float x)
+    {
+        // x is the amount reduced from original size
+        transform.position = new Vector3(positionX + x, transform.position.y);
+        sr.size = new Vector2(originalSize - x, sr.size.y);
+    }
+
+    public void shrinkRight(float x)
+    {
+        sr.size = new Vector2(originalSize - x, sr.size.y);
+    }
+
     public void SetGirderBounds(float timer)
     {
         float percent = 100f;

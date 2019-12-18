@@ -9,7 +9,7 @@ public class EnterMon : StateMachineBehaviour
     override public void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
         ms = animator.GetComponent<MonsterScript>();
-        ms.SetSpeed(0, -1, false);
+        ms.SetSpeed(0, -0.5f, false);
     }
 
     // OnStateUpdate is called on each Update frame between OnStateEnter and OnStateExit callbacks

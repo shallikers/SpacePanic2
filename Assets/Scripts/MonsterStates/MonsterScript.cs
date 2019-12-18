@@ -13,6 +13,12 @@ public class MonsterScript : MonoBehaviour
     public float speedModifier;
     public bool onFloor = false;
     public bool onLadder = false;
+    public bool inHole = false;
+    public bool trapped = false;
+    public bool falling = false;
+    public float trappedTimer;
+    public GameObject hole = null;
+
 
     Vector3 leftBottom; // left mray base for checking for floor and ladders left
     Vector3 rightBottom; // ray base for checking for floor and ladders right
@@ -74,6 +80,7 @@ public class MonsterScript : MonoBehaviour
         int layermaskBlocks = 1 << 9;
         int layermaskMonsters = 1 << 10;
         int layermaskLadders = 1 << 8;
+        int layermaskHoles = 1 << 11;
         // floor check
         RaycastHit2D lefthit = Physics2D.Raycast(leftBottom, Vector2.down * bounds.extents.y, bounds.extents.y, layermaskBlocks);
         //Debug.DrawRay(leftBottom, Vector2.down * bounds.extents.y, Color.green);
@@ -91,14 +98,36 @@ public class MonsterScript : MonoBehaviour
         //if (lefthitLadder) Debug.DrawRay(leftCentre, Vector2.left * bounds.extents.x, Color.red);
         //else Debug.DrawRay(leftCentre, Vector2.left * bounds.extents.x, Color.blue);
 
-
         RaycastHit2D righthitLadder = Physics2D.Raycast(rightCentre, Vector2.right, bounds.extents.x, layermaskLadders);
         //if (righthitLadder) Debug.DrawRay(rightCentre, Vector2.right * bounds.extents.x, Color.red);
         //else Debug.DrawRay(rightCentre, Vector2.right * bounds.extents.x, Color.blue);
 
+        //hole check
+        // floor check
+        RaycastHit2D lefthitHole = Physics2D.Raycast(leftBottom, Vector2.down * bounds.extents.y, bounds.extents.y, layermaskHoles);
+        Debug.DrawRay(leftBottom, Vector2.down * bounds.extents.y, Color.green);
+        RaycastHit2D righthitHole = Physics2D.Raycast(rightBottom, Vector2.down * bounds.extents.y, bounds.extents.y, layermaskHoles);
+        Debug.DrawRay(rightBottom, Vector2.down * bounds.extents.y, Color.green);
+
+        // if the hole is full make the hole hit inactive
+        if (lefthitHole)
+        {
+            if (lefthitHole.rigidbody.gameObject.GetComponent<HoleScript>().full)
+                lefthitHole = new RaycastHit2D();
+        }
+        if (righthitHole)
+        {
+            if (righthitHole.rigidbody.gameObject.GetComponent<HoleScript>().full)
+                righthitHole = new RaycastHit2D();
+        }
+    
+     
+
+        bc.enabled = true;
+
         if (lefthitLadder & righthitLadder)
         {
-            // I am intersected with a ladder
+            // I am intersected with a ladder.
             if (!decisionMade)
             {
                 ChooseAxis();
@@ -110,13 +139,54 @@ public class MonsterScript : MonoBehaviour
             decisionMade = false;
         }
 
+        if (lefthitHole & righthitHole & !inHole)
+        {
+            inHole = true;    
+            hole = lefthitHole.rigidbody.gameObject;
+            hole.GetComponent<HoleScript>().full = true;
+            hole.GetComponent<HoleScript>().monster = gameObject;
+            trappedTimer = Time.time + GCScript.inst.trappedTime;
+ 
+        }
+        if (inHole)
+        {
+            if (bounds.max.y > hole.GetComponent<SpriteRenderer>().bounds.max.y)
+            {
+                SetSpeed(0, -normalSpeed);
+            }
+            else
+            {
+                SetSpeed(0, 0);
+            }
 
-     
+            float offset = bounds.center.x - hole.GetComponent<SpriteRenderer>().bounds.center.x;
 
-        bc.enabled = true;
+            if ( Mathf.Abs(offset)>0.01f)
+            {
+                if (offset < 0) setSpeedX(normalSpeed / 10); else setSpeedX(-normalSpeed / 10);
+            }
+            return;
+        }
 
-        bool leftBlocked = lefthitmon || !lefthit;
-        bool rightBlocked = righthitmon || !righthit;
+        if (falling)
+        {
+            if(vSpeed == 0)
+            {
+                setSpeedY(-normalSpeed);
+            }
+            if(lefthit | righthit)
+            {
+                Destroy(gameObject);
+            }
+            return;
+
+        }
+
+
+
+
+        bool leftBlocked = lefthitmon || (!lefthit & !lefthitHole);
+        bool rightBlocked = righthitmon || (!righthit & !righthitHole);
 
         if (NotMoving()) ChooseDirection();
 
@@ -299,5 +369,15 @@ public class MonsterScript : MonoBehaviour
         }
     }
 
-    
+    public void setSpeedX(float h)
+    {
+        hSpeed = h;
+        rb.velocity = new Vector3(hSpeed, vSpeed, 0);
+    }
+    public void setSpeedY(float v)
+    {
+        vSpeed = v;
+        rb.velocity = new Vector3(hSpeed, vSpeed, 0);
+    }
+
 }

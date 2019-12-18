@@ -13,12 +13,15 @@ public class GCScript : MonoBehaviour
     public GameObject redMonster;
     public GameObject playerPrefab;
     public GameObject activePlayer;
+    public GameObject hole;
 
     public Animator anim;
 
 
     // gamestate
     public float maxLives = 3f;
+    public float digTime = 0.5f;
+    public float trappedTime = 5f;
     public float lives = 0f;
     public float level = 0f;
 
@@ -30,6 +33,7 @@ public class GCScript : MonoBehaviour
     public float halfHeight;
     public float halfWidth;
     public float holeWidth;
+
 
     //Game Objects
     GameObject[] layouts = new GameObject[10];
@@ -50,6 +54,10 @@ public class GCScript : MonoBehaviour
     {
         layouts[1] = GameObject.Find("Layout1");
         layouts[1].SetActive(false);
+        layouts[0] = GameObject.Find("LayoutMenu");
+        layouts[0].SetActive(true);
+
+        holeWidth = redMonster.GetComponent<SpriteRenderer>().bounds.size.x;
 
     }
 
