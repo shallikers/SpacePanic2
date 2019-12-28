@@ -62,6 +62,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Assets\Scripts\DrifterScript.cs" />
     <Compile Include="Assets\Scripts\GCStates\GameOverState.cs" />
     <Compile Include="Assets\Scripts\GCStates\GCScript.cs" />
     <Compile Include="Assets\Scripts\GCStates\LevelState.cs" />
@@ -75,7 +76,9 @@
     <Compile Include="Assets\Scripts\MonsterStates\IdleMon.cs" />
     <Compile Include="Assets\Scripts\MonsterStates\MonsterScript.cs" />
     <Compile Include="Assets\Scripts\MonsterStates\MovingMon.cs" />
+    <Compile Include="Assets\Scripts\OxygenLevelScript.cs" />
     <Compile Include="Assets\Scripts\PlayerStates\PlayerScript.cs" />
+    <Compile Include="Assets\Scripts\TextFaderScript.cs" />
     <None Include="Assets\TextMesh Pro\Resources\Shaders\TMP_SDF-Surface-Mobile.shader" />
     <None Include="Assets\TextMesh Pro\Resources\LineBreaking Leading Characters.txt" />
     <None Include="Assets\TextMesh Pro\Resources\Shaders\TMPro_Properties.cginc" />

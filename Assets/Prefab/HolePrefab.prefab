@@ -15,7 +15,7 @@ GameObject:
   - component: {fileID: 6136919873542678804}
   m_Layer: 11
   m_Name: HolePrefab
-  m_TagString: Untagged
+  m_TagString: Hole
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -123,6 +123,16 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   leftGirder: {fileID: 0}
   rightGirder: {fileID: 0}
+  monster: {fileID: 0}
+  layouts: {fileID: 0}
+  dig: 0
+  dug: 0
+  digging: 0
+  fill: 0
+  filling: 0
+  auto: 0
+  full: 0
+  force: 0
 --- !u!50 &6136919873542678804
 Rigidbody2D:
   serializedVersion: 4
