@@ -9,7 +9,7 @@ public class LevelState : StateMachineBehaviour
     override public void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
 
-        GCScript.inst.messageCanvas.SetActive(true);
+        GCScript.inst.messageText.SetActive(true);
         GCScript.inst.SetMessageText("Level " + GCScript.inst.level);
 
         // We need to build the level
@@ -26,16 +26,21 @@ public class LevelState : StateMachineBehaviour
         }
 
         //just create 6 monsters for now
-        for(int i=0; i<6; i++)
+        for(int i=0; i<7; i++)
         {
             spawns[i].GetComponent<ParticleSystem>().Play();
-            GameObject go = Instantiate(GCScript.inst.redMonster, spawns[i].transform);
+            //GameObject go = Instantiate(GCScript.inst.redMonster, spawns[i].transform);
+            if (i < 5) { GameObject go = MonsterScript.MakeMonster("Red",spawns[i].transform); }
+            if (i == 5) { GameObject go = MonsterScript.MakeMonster("Green", spawns[i].transform); }
+            if (i == 6) { GameObject go = MonsterScript.MakeMonster("Blue", spawns[i].transform); }
         }
+
 
         // and the player
         GCScript.inst.activePlayer = Instantiate(GCScript.inst.playerPrefab);
         GCScript.inst.activePlayer.transform.position = new Vector3(-1.5f, 1f, 0);
 
+        GCScript.inst.oxygenLevelScript.StartCountDown();
 
     }
 
@@ -48,7 +53,7 @@ public class LevelState : StateMachineBehaviour
     // OnStateExit is called when a transition ends and the state machine finishes evaluating this state
     override public void OnStateExit(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
-        GCScript.inst.messageCanvas.SetActive(false);
+        GCScript.inst.messageText.SetActive(false);
     }
 
     // OnStateMove is called right after Animator.OnAnimatorMove()

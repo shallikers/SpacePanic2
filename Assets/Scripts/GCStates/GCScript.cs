@@ -8,22 +8,29 @@ public class GCScript : MonoBehaviour
 {
     public static GCScript inst;
     public GameObject messageText;
-    public GameObject messageCanvas;
     public GameObject menuCanvas;
     public GameObject redMonster;
     public GameObject playerPrefab;
     public GameObject activePlayer;
     public GameObject hole;
+    public GameObject monstorScorePrefab;
+    public GameObject ScoreAndLives;
+    public GameObject UXCanvas;
+    public OxygenLevelScript oxygenLevelScript;
+
+
 
     public Animator anim;
 
 
     // gamestate
     public float maxLives = 3f;
-    public float digTime = 0.5f;
+    public float digSpeed = 1f;
     public float trappedTime = 5f;
-    public float lives = 0f;
+    public float lives = 3f;
     public float level = 0f;
+    public float score = 0f;
+    public float oxygenTime = 30f;
 
     // game parameters
     public float baseSpeed = 4;
@@ -36,7 +43,7 @@ public class GCScript : MonoBehaviour
 
 
     //Game Objects
-    GameObject[] layouts = new GameObject[10];
+    public GameObject[] layouts = new GameObject[10];
 
 
     // Awake
@@ -52,9 +59,9 @@ public class GCScript : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        layouts[1] = GameObject.Find("Layout1");
-        layouts[1].SetActive(false);
-        layouts[0] = GameObject.Find("LayoutMenu");
+        //layouts[1] = GameObject.Find("Layout1");
+        //layouts[1].SetActive(false);
+        //layouts[0] = GameObject.Find("LayoutMenu");
         layouts[0].SetActive(true);
 
         holeWidth = redMonster.GetComponent<SpriteRenderer>().bounds.size.x;
@@ -68,6 +75,9 @@ public class GCScript : MonoBehaviour
         Camera camera = Camera.main;
         halfHeight = camera.orthographicSize;
         halfWidth = camera.aspect * halfHeight;
+
+        ScoreAndLives.GetComponent<TextMeshProUGUI>().text = "Score: " + score + "    Lives: " + lives;
+
     }
 
     public void SetMessageText(string text)

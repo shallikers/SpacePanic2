@@ -6,6 +6,8 @@ TagManager:
   tags:
   - SpawnPoint
   - Girder
+  - Hole
+  - Monster
   layers:
   - Default
   - TransparentFX
@@ -42,4 +44,10 @@ TagManager:
   m_SortingLayers:
   - name: Default
     uniqueID: 0
+    locked: 0
+  - name: UX Canvas
+    uniqueID: 2173484327
+    locked: 0
+  - name: Menu
+    uniqueID: 1127252189
     locked: 0

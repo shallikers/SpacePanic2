@@ -7,11 +7,14 @@ public class ReadyState : StateMachineBehaviour
     // OnStateEnter is called when a transition starts and the state machine starts to evaluate this state
     override public void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
-        GCScript.inst.messageCanvas.SetActive(true);
+        GCScript.inst.messageText.SetActive(true);
         GCScript.inst.SetMessageText("Ready Player One");
         GCScript.inst.level = 1;
         GCScript.inst.lives = GCScript.inst.maxLives;
         GCScript.inst.anim.SetFloat("Lives", GCScript.inst.lives);
+
+        GCScript.inst.oxygenLevelScript.Reset();
+
     }
 
     // OnStateUpdate is called on each Update frame between OnStateEnter and OnStateExit callbacks
@@ -23,7 +26,7 @@ public class ReadyState : StateMachineBehaviour
     // OnStateExit is called when a transition ends and the state machine finishes evaluating this state
     override public void OnStateExit(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
-        GCScript.inst.messageCanvas.SetActive(false);
+        GCScript.inst.messageText.SetActive(false);
 
 
     }

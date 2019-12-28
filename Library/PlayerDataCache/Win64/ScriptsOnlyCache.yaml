@@ -1,18 +1,21 @@
 ScriptsOnlyBuild:
   usedScripts:
     Assembly-CSharp.dll:
+    - DrifterScript
     - EnterMon
     - GCScript
     - GameOverState
     - GirderScript
+    - HoleScript
     - LevelState
     - MenuState
     - MessageTextScript
     - MonsterScript
-    - MovingMon
+    - OxygenLevelScript
     - PlayState
     - PlayerScript
     - ReadyState
+    - TextFaderScript
     Unity.TextMeshPro.dll:
     - TMPro.TMP_FontAsset
     - TMPro.TMP_Settings
@@ -22,8 +25,11 @@ ScriptsOnlyBuild:
     UnityEditor.Graphs.dll:
     - UnityEditor.Graphs.AnimationBlendTree.Graph
     - UnityEditor.Graphs.AnimationBlendTree.GraphGUI
+    - UnityEditor.Graphs.AnimationStateMachine.AnyStateNode
     - UnityEditor.Graphs.AnimationStateMachine.Graph
     - UnityEditor.Graphs.AnimationStateMachine.GraphGUI
+    - UnityEditor.Graphs.AnimationStateMachine.StateMachineNode
+    - UnityEditor.Graphs.AnimationStateMachine.StateNode
     - UnityEditor.Graphs.AnimatorControllerTool
     UnityEditor.TestRunner.dll:
     - UnityEditor.TestTools.TestRunner.Api.CallbacksHolder
@@ -72,47 +78,53 @@ ScriptsOnlyBuild:
     - Class: 114
       Script: {instanceID: 9778}
     - Class: 114
-      Script: {instanceID: 9822}
+      Script: {instanceID: 9802}
     - Class: 114
-      Script: {instanceID: 9896}
+      Script: {instanceID: 9824}
     - Class: 114
-      Script: {instanceID: 9938}
+      Script: {instanceID: 9898}
     - Class: 114
-      Script: {instanceID: 10220}
+      Script: {instanceID: 9940}
     - Class: 114
-      Script: {instanceID: 10278}
+      Script: {instanceID: 10224}
     - Class: 114
-      Script: {instanceID: 10298}
+      Script: {instanceID: 10282}
     - Class: 114
-      Script: {instanceID: 10320}
+      Script: {instanceID: 10302}
     - Class: 114
-      Script: {instanceID: 10572}
+      Script: {instanceID: 10324}
     - Class: 114
-      Script: {instanceID: 10588}
+      Script: {instanceID: 10472}
     - Class: 114
-      Script: {instanceID: 10630}
+      Script: {instanceID: 10582}
     - Class: 114
-      Script: {instanceID: 10800}
+      Script: {instanceID: 10598}
     - Class: 114
-      Script: {instanceID: 10850}
+      Script: {instanceID: 10640}
     - Class: 114
-      Script: {instanceID: 10864}
+      Script: {instanceID: 10810}
     - Class: 114
-      Script: {instanceID: 10982}
+      Script: {instanceID: 10830}
     - Class: 114
-      Script: {instanceID: 11038}
+      Script: {instanceID: 10860}
     - Class: 114
-      Script: {instanceID: 11096}
+      Script: {instanceID: 10874}
     - Class: 114
-      Script: {instanceID: 11204}
+      Script: {instanceID: 10992}
     - Class: 114
-      Script: {instanceID: 11254}
+      Script: {instanceID: 11048}
     - Class: 114
-      Script: {instanceID: 11362}
+      Script: {instanceID: 11106}
     - Class: 114
-      Script: {instanceID: 11424}
+      Script: {instanceID: 11264}
     - Class: 114
-      Script: {instanceID: 11452}
+      Script: {instanceID: 11372}
+    - Class: 114
+      Script: {instanceID: 11412}
+    - Class: 114
+      Script: {instanceID: 11436}
+    - Class: 114
+      Script: {instanceID: 11464}
     - Class: 115
       Script: {instanceID: 0}
     - Class: 128
@@ -160,7 +172,7 @@ ScriptsOnlyBuild:
     className: TMP_Dropdown
   - hash:
       serializedVersion: 2
-      Hash: 1e1eea5dbab057b1065658357963060c
+      Hash: 16163658bf619b53296e4dbb6e0cdbd6
     assemblyName: Assembly-CSharp.dll
     namespaceName: 
     className: MonsterScript
@@ -172,7 +184,13 @@ ScriptsOnlyBuild:
     className: TMP_ScrollbarEventHandler
   - hash:
       serializedVersion: 2
-      Hash: 7268e583796fb47bbe67ff8d92789457
+      Hash: bb4e7f96c867f6f681b2bcb1e92742ad
+    assemblyName: Assembly-CSharp.dll
+    namespaceName: 
+    className: TextFaderScript
+  - hash:
+      serializedVersion: 2
+      Hash: 2c5c16f76721db1ac5c4df20525dd7bb
     assemblyName: Assembly-CSharp.dll
     namespaceName: 
     className: PlayerScript
@@ -364,6 +382,12 @@ ScriptsOnlyBuild:
     className: ScrollRect
   - hash:
       serializedVersion: 2
+      Hash: 71bb6a6b6c8f052f948db64c7dd3ca4f
+    assemblyName: Assembly-CSharp.dll
+    namespaceName: 
+    className: DrifterScript
+  - hash:
+      serializedVersion: 2
       Hash: c3d3430df9e3ea95e3e3d587961390fb
     assemblyName: Unity.Timeline.dll
     namespaceName: UnityEngine.Timeline
@@ -388,7 +412,7 @@ ScriptsOnlyBuild:
     className: ReadyState
   - hash:
       serializedVersion: 2
-      Hash: f3052140c09d5d99647764d378289c6e
+      Hash: 89105658d8699d3cd3b1e827db67ccdb
     assemblyName: Assembly-CSharp.dll
     namespaceName: 
     className: GCScript
@@ -436,7 +460,7 @@ ScriptsOnlyBuild:
     className: InputField
   - hash:
       serializedVersion: 2
-      Hash: 71bb6a6b6c8f052f948db64c7dd3ca4f
+      Hash: 986ea1725678d9d8e0717db587264438
     assemblyName: Assembly-CSharp.dll
     namespaceName: 
     className: HoleScript
@@ -566,6 +590,12 @@ ScriptsOnlyBuild:
     assemblyName: UnityEngine.UI.dll
     namespaceName: UnityEngine.UI
     className: Outline
+  - hash:
+      serializedVersion: 2
+      Hash: 71bb6a6b6c8f052f948db64c7dd3ca4f
+    assemblyName: Assembly-CSharp.dll
+    namespaceName: 
+    className: OxygenLevelScript
   - hash:
       serializedVersion: 2
       Hash: a63fc1a3b035e5a0b5839cd7f7b3086e

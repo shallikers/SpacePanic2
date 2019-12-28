@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using TMPro;
 
 public class MonsterScript : MonoBehaviour
 {
@@ -9,8 +10,9 @@ public class MonsterScript : MonoBehaviour
     public BoxCollider2D bc;
     public Bounds bounds;
     public float vSpeed, hSpeed;
-    public float normalSpeed;
-    public float speedModifier;
+    public float normalSpeed = 4f;
+    public float speedModifier = 1f;
+    public bool entering = true;
     public bool onFloor = false;
     public bool onLadder = false;
     public bool inHole = false;
@@ -18,6 +20,13 @@ public class MonsterScript : MonoBehaviour
     public bool falling = false;
     public float trappedTimer;
     public GameObject hole = null;
+    public float fallCount = 1;
+    public float killFloors = 1;
+    public float scoreValue = 100;
+    public GameObject UXCanvas;
+    bool scoreShown = false;
+    bool dead = false;
+    public string colour = "Red";
 
 
     Vector3 leftBottom; // left mray base for checking for floor and ladders left
@@ -34,6 +43,71 @@ public class MonsterScript : MonoBehaviour
     public float minDistance = .4f;
     bool decisionMade = false;
 
+    public static GameObject MakeMonster(string c, Transform t)
+    {
+        GameObject go = Instantiate(GCScript.inst.redMonster, t);
+        go.GetComponent<MonsterScript>().SetColour(c);
+        return go;
+    }
+
+
+    //public static GameObject MakeRed(Transform t)
+    //{
+    //    GameObject go = Instantiate(GCScript.inst.redMonster, t);
+    //    go.GetComponent<MonsterScript>().SetColour("Red");
+    //    return go;
+    //}
+
+    //public static GameObject MakeGreen(Transform t)
+    //{
+    //    GameObject go = Instantiate(GCScript.inst.redMonster, t);
+    //    go.GetComponent<MonsterScript>().SetColour("Green");
+    //    return go;
+    //}
+
+    //public static GameObject MakeBlue(Transform t)
+    //{
+    //    GameObject go = Instantiate(GCScript.inst.redMonster, t);
+    //    go.GetComponent<MonsterScript>().SetColour("Blue");
+    //    return go;
+    //}
+
+    public void SetColour(string c)
+    {
+        colour = c;
+        if (anim != null)
+        {
+            anim.SetBool("Red", false);
+            anim.SetBool("Green", false);
+            anim.SetBool("Blue", false);
+            anim.SetBool(c, true);
+        }
+
+
+        if (c== "Red")
+        {
+            speedModifier = 1;
+            normalSpeed = GCScript.inst.baseSpeed * speedModifier;
+            killFloors = 1;
+            scoreValue = 100;
+        }
+
+        if (c == "Green")
+        {
+            speedModifier = 1.2f;
+            normalSpeed = GCScript.inst.baseSpeed * speedModifier;
+            killFloors = 2;
+            scoreValue = 200;
+        }
+
+        if (c == "Blue")
+        {
+            speedModifier = 1.4f;
+            normalSpeed = GCScript.inst.baseSpeed * speedModifier;
+            killFloors =3;
+            scoreValue = 300;
+        }
+    }
 
 
     // Start is called before the first frame update
@@ -42,13 +116,13 @@ public class MonsterScript : MonoBehaviour
         anim = GetComponent<Animator>();
         rb = GetComponent<Rigidbody2D>();
         bc = GetComponent<BoxCollider2D>();
-        speedModifier = 1;
-        normalSpeed = GCScript.inst.baseSpeed * speedModifier;
+        SetColour(colour);
+        fallCount = 1;
     }
 
     // Update is called once per frame
 
-    void Update()
+    void FixedUpdate()
     {
         bounds = bc.bounds;
         leftBottom = new Vector3(bounds.min.x, bounds.min.y, 0);
@@ -60,6 +134,8 @@ public class MonsterScript : MonoBehaviour
         bottom = new Vector3(bounds.center.x, bounds.min.y);
         centre = new Vector3(bounds.center.x, bounds.center.y);
         top = new Vector3(bounds.center.x, bounds.max.y);
+
+        reactToPosition();
     }
 
     public void reactToPosition()
@@ -71,6 +147,10 @@ public class MonsterScript : MonoBehaviour
         if (onLadder)
         {
             ReactToPositionLadder();
+        }
+        if (entering)
+        {
+            GroundedCheck();
         }
     }
 
@@ -139,7 +219,7 @@ public class MonsterScript : MonoBehaviour
             decisionMade = false;
         }
 
-        if (lefthitHole & righthitHole & !inHole)
+        if (lefthitHole & righthitHole & !inHole & !lefthitLadder & !righthitLadder & !falling)
         {
             inHole = true;    
             hole = lefthitHole.rigidbody.gameObject;
@@ -176,7 +256,29 @@ public class MonsterScript : MonoBehaviour
             }
             if(lefthit | righthit)
             {
-                Destroy(gameObject);
+                if (!scoreShown)
+                {
+                    if(fallCount >= killFloors)
+                    {
+                        KillMe();
+                    }
+                    else
+                    {
+                        if (GroundedCheck())
+                        {
+                            falling = false;
+                        }
+                    }
+                    
+
+
+                }
+                else
+                {
+                    setSpeedY(0);
+                }
+ 
+
             }
             return;
 
@@ -206,6 +308,24 @@ public class MonsterScript : MonoBehaviour
             return;
         }
     }
+
+    public void KillMe()
+    {
+        Destroy(gameObject, 0.5f);
+        GetComponent<ParticleSystem>().Play();
+        GetComponent<SpriteRenderer>().enabled = false;
+        GameObject g = Instantiate(GCScript.inst.monstorScorePrefab, GCScript.inst.UXCanvas.transform);
+        g.transform.transform.position = transform.position + new Vector3(0, .2f, 0);
+        g.GetComponent<TextMeshProUGUI>().text = (scoreValue * fallCount).ToString();
+        Destroy(g, .75f);
+        scoreShown = true;
+        if(inHole )
+        {
+            inHole = false;
+   
+        }
+    }
+
     public void ReactToPositionLadder()
     {
         bc.enabled = false;
@@ -294,6 +414,7 @@ public class MonsterScript : MonoBehaviour
             transform.position = new Vector3(transform.position.x, hit.transform.position.y, 0);
             onFloor = true;
             onLadder = false;
+            entering = false;
             ChooseDirection();
             return true;
         }
@@ -379,5 +500,39 @@ public class MonsterScript : MonoBehaviour
         vSpeed = v;
         rb.velocity = new Vector3(hSpeed, vSpeed, 0);
     }
+
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        Debug.Log(gameObject.tag+ " / " + collision.gameObject.tag);
+        if (falling)
+        {
+            if (collision.gameObject.tag == "Hole")
+            {
+
+                if (collision.gameObject != hole)
+                {
+                    fallCount++;
+                    hole = collision.gameObject;
+                    hole.GetComponent<HoleScript>().ForceClose();
+                }
+
+            }
+            if (collision.gameObject.tag == "Monster")
+            {
+ //               if (!collision.gameObject.GetComponent<MonsterScript>().inHole)
+                {
+                    collision.gameObject.GetComponent<MonsterScript>().KillMe();
+ //                   if(!collision.gameObject.GetComponent<MonsterScript>().inHole) scoreShown = true;
+                }
+
+
+                //if (!collision.gameObject.GetComponent<MonsterScript>().scoreShown)
+                //{
+                //    collision.gameObject.GetComponent<MonsterScript>().KillMe();
+                //}              
+            }
+        }
+    }
+
 
 }
