@@ -72,12 +72,9 @@
     <Compile Include="Assets\Scripts\GirderScript.cs" />
     <Compile Include="Assets\Scripts\HoleScript.cs" />
     <Compile Include="Assets\Scripts\MessageTextScript.cs" />
-    <Compile Include="Assets\Scripts\MonsterStates\EnterMon.cs" />
-    <Compile Include="Assets\Scripts\MonsterStates\IdleMon.cs" />
-    <Compile Include="Assets\Scripts\MonsterStates\MonsterScript.cs" />
-    <Compile Include="Assets\Scripts\MonsterStates\MovingMon.cs" />
+    <Compile Include="Assets\Scripts\MonsterScript.cs" />
     <Compile Include="Assets\Scripts\OxygenLevelScript.cs" />
-    <Compile Include="Assets\Scripts\PlayerStates\PlayerScript.cs" />
+    <Compile Include="Assets\Scripts\PlayerScript.cs" />
     <Compile Include="Assets\Scripts\TextFaderScript.cs" />
     <None Include="Assets\TextMesh Pro\Resources\Shaders\TMP_SDF-Surface-Mobile.shader" />
     <None Include="Assets\TextMesh Pro\Resources\LineBreaking Leading Characters.txt" />

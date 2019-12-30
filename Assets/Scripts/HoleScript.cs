@@ -235,7 +235,7 @@ public class HoleScript : MonoBehaviour
         {
             monster.GetComponent<MonsterScript>().inHole = false;
             monster.GetComponent<MonsterScript>().falling = true;
-            monster.GetComponent<MonsterScript>().SetSpeed(0,0,false);
+            //monster.GetComponent<MonsterScript>().SetSpeedY(0,0,false);
         }
         Destroy(gameObject);
         Destroy(rightGirder);

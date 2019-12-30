@@ -12,12 +12,14 @@ public class MonsterScript : MonoBehaviour
     public float vSpeed, hSpeed;
     public float normalSpeed = 4f;
     public float speedModifier = 1f;
-    public bool entering = true;
+    public float emergingSpeed = 1f;
+    public bool entering = false;
     public bool onFloor = false;
     public bool onLadder = false;
     public bool inHole = false;
     public bool trapped = false;
     public bool falling = false;
+    public bool emerging = false;
     public float trappedTimer;
     public GameObject hole = null;
     public float fallCount = 1;
@@ -118,6 +120,7 @@ public class MonsterScript : MonoBehaviour
         bc = GetComponent<BoxCollider2D>();
         SetColour(colour);
         fallCount = 1;
+        SetSpeed(0, -normalSpeed);
     }
 
     // Update is called once per frame
@@ -156,6 +159,7 @@ public class MonsterScript : MonoBehaviour
 
     public void ReactToPositionFloor()
     {
+        // raycasting     
         bc.enabled = false;
         int layermaskBlocks = 1 << 9;
         int layermaskMonsters = 1 << 10;
@@ -170,7 +174,7 @@ public class MonsterScript : MonoBehaviour
         // monster check
         RaycastHit2D lefthitmon = Physics2D.Raycast(leftCentre, Vector2.left, bounds.extents.x, layermaskMonsters);
         //Debug.DrawRay(leftCentre, Vector2.left* bounds.extents.x, Color.blue);
-        RaycastHit2D righthitmon = Physics2D.Raycast(rightCentre, Vector2.right , bounds.extents.x, layermaskMonsters);
+        RaycastHit2D righthitmon = Physics2D.Raycast(rightCentre, Vector2.right, bounds.extents.x, layermaskMonsters);
         //Debug.DrawRay(rightCentre, Vector2.right * bounds.extents.x, Color.blue);
 
         // ladder check
@@ -200,11 +204,11 @@ public class MonsterScript : MonoBehaviour
             if (righthitHole.rigidbody.gameObject.GetComponent<HoleScript>().full)
                 righthitHole = new RaycastHit2D();
         }
-    
-     
 
         bc.enabled = true;
+        
 
+        // choosing ladder direction
         if (lefthitLadder & righthitLadder)
         {
             // I am intersected with a ladder.
@@ -219,17 +223,62 @@ public class MonsterScript : MonoBehaviour
             decisionMade = false;
         }
 
+        // falling into a hole
         if (lefthitHole & righthitHole & !inHole & !lefthitLadder & !righthitLadder & !falling)
         {
-            inHole = true;    
+            inHole = true;
             hole = lefthitHole.rigidbody.gameObject;
             hole.GetComponent<HoleScript>().full = true;
             hole.GetComponent<HoleScript>().monster = gameObject;
-            trappedTimer = Time.time + GCScript.inst.trappedTime;
- 
+            trappedTimer = Time.time + GCScript.inst.trappedTime; 
         }
-        if (inHole)
+
+        // emerging
+
+
+        if (emerging)
         {
+            if (hole == null)
+            {
+     
+                emerging = false;
+                inHole = false;
+                falling = false;
+                onFloor = false;
+                onLadder = false;
+                entering = true;
+                SetSpeed(0, -emergingSpeed);
+                
+            }
+            else
+            if (transform.position.y > hole.transform.position.y + 0.2f)
+            {
+                hole.GetComponent<HoleScript>().ForceClose();
+                if(vSpeed != 0)
+                {
+                    if (colour == "Green") SetColour("Blue");
+                    if (colour == "Red") SetColour("Green");
+                    SetSpeed(0, 0);
+                }
+
+
+            }
+            return;
+        }
+
+
+
+
+        // stuck in the hole
+        if (inHole && !emerging)
+        {
+            if (Time.time > trappedTimer)
+            {
+                emerging = true;
+                SetSpeed(0, emergingSpeed);
+                return;
+            }
+
             if (bounds.max.y > hole.GetComponent<SpriteRenderer>().bounds.max.y)
             {
                 SetSpeed(0, -normalSpeed);
@@ -248,6 +297,7 @@ public class MonsterScript : MonoBehaviour
             return;
         }
 
+        // falling
         if (falling)
         {
             if(vSpeed == 0)
@@ -284,33 +334,44 @@ public class MonsterScript : MonoBehaviour
 
         }
 
+        // emerging monster code
 
 
-
-        bool leftBlocked = lefthitmon || (!lefthit & !lefthitHole);
-        bool rightBlocked = righthitmon || (!righthit & !righthitHole);
-
-        if (NotMoving()) ChooseDirection();
-
-        if (leftBlocked && rightBlocked)
+        // blocked monster code
         {
-            SetSpeed(0, 0);
-            return;
+
+            bool leftBlocked = lefthitmon || (!lefthit & !lefthitHole);
+            bool rightBlocked = righthitmon || (!righthit & !righthitHole);
+
+            if (NotMoving()) ChooseDirection();
+
+            if (leftBlocked && rightBlocked)
+            {
+                SetSpeed(0, 0);
+                return;
+            }            if (leftBlocked && !rightBlocked)
+            {
+                SetSpeed(normalSpeed, 0);
+                return;
+            }
+            if (!leftBlocked && rightBlocked)
+            {
+                SetSpeed(-normalSpeed, 0);
+                return;
+            }
         }
-        if (leftBlocked && !rightBlocked)
-        {
-            SetSpeed(normalSpeed, 0);
-            return;
-        }
-        if (!leftBlocked && rightBlocked)
-        {
-            SetSpeed(-normalSpeed, 0);
-            return;
-        }
+
     }
 
     public void KillMe()
     {
+        // emerging monsters cannot be killed
+        if (emerging)
+        {
+            return;
+        }
+
+
         Destroy(gameObject, 0.5f);
         GetComponent<ParticleSystem>().Play();
         GetComponent<SpriteRenderer>().enabled = false;
@@ -319,10 +380,11 @@ public class MonsterScript : MonoBehaviour
         g.GetComponent<TextMeshProUGUI>().text = (scoreValue * fallCount).ToString();
         Destroy(g, .75f);
         scoreShown = true;
+        GCScript.inst.score += scoreValue * fallCount;
+        scoreValue = 0;
         if(inHole )
         {
-            inHole = false;
-   
+            inHole = false;  
         }
     }
 
@@ -409,7 +471,7 @@ public class MonsterScript : MonoBehaviour
         bc.enabled = true;
 
         float distance = Mathf.Abs(hit.point.y - transform.position.y);
-        if (hit && distance < 0.1f)
+        if (hit && distance < 0.03f)
         {
             transform.position = new Vector3(transform.position.x, hit.transform.position.y, 0);
             onFloor = true;
@@ -434,7 +496,8 @@ public class MonsterScript : MonoBehaviour
             onLadder = true;
         }
         decisionMade = true;
-        SetSpeed(0, 0);
+        //SetSpeed(0, 0);
+        ChooseDirection();
 
     }
 
@@ -475,19 +538,34 @@ public class MonsterScript : MonoBehaviour
     }
 
 
-    public void SetSpeed(float h, float v, bool changeState = true)
+    public void SetSpeed(float h, float v)
     {
         vSpeed = v;
         hSpeed = h;
         rb.velocity = new Vector3(h, v, 0);
-        if (changeState)
-        {
-            //if (v == 0 && h == 0) anim.SetTrigger("GoIdle");
-            if (v > 0) { anim.SetTrigger("WalkUp"); return; }
-            if (v < 0) { anim.SetTrigger("WalkDown"); return; }
-            if (h < 0) { anim.SetTrigger("WalkLeft"); return; }
-            if (h > 0) { anim.SetTrigger("WalkRight"); return; }
-        }
+        Animate();
+    }
+
+    public void Animate()
+    {
+        if (emerging) { SetTrigger("Angry"); return; }
+        if (inHole) { SetTrigger("Scared"); return; }
+        if (rb.velocity.y > 0) { SetTrigger("WalkUp"); return; }
+        if (rb.velocity.y < 0) { SetTrigger("WalkDown"); return; }
+        if (rb.velocity.x < 0) { SetTrigger("WalkLeft"); return; }
+        if (rb.velocity.x > 0) { SetTrigger("WalkRight"); return; }
+    }
+
+    public void SetTrigger(string t)
+    {
+        anim.ResetTrigger("WalkUp");
+        anim.ResetTrigger("WalkDown");
+        anim.ResetTrigger("WalkLeft");
+        anim.ResetTrigger("WalkRight");
+        anim.ResetTrigger("Scared");
+        anim.ResetTrigger("Angry");
+        anim.SetTrigger(t);
+
     }
 
     public void setSpeedX(float h)
@@ -519,8 +597,9 @@ public class MonsterScript : MonoBehaviour
             }
             if (collision.gameObject.tag == "Monster")
             {
- //               if (!collision.gameObject.GetComponent<MonsterScript>().inHole)
+                if(collision.gameObject.GetComponent<MonsterScript>().scoreValue != 0)
                 {
+                    
                     collision.gameObject.GetComponent<MonsterScript>().KillMe();
  //                   if(!collision.gameObject.GetComponent<MonsterScript>().inHole) scoreShown = true;
                 }
