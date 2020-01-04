@@ -32,6 +32,7 @@ public class PlayerScript : MonoBehaviour
     public bool onGround = false;
     public bool ladderUp = false;
     public bool ladderDown = false;
+    public bool dead = false;
     public float lowestGirder;
     public bool busy = false;  //(digging or filling)
     float timer;
@@ -165,6 +166,32 @@ public class PlayerScript : MonoBehaviour
         rb.velocity = new Vector3(hSpeed, vSpeed, 0);
         
 
+    }
+
+    public void KillMe()
+    {
+        if (dead) return;
+        dead = true;
+        Destroy(gameObject, 0.5f);
+        GetComponent<ParticleSystem>().Play();
+        GetComponent<SpriteRenderer>().enabled = false;
+        bc.enabled = false;
+        GCScript.inst.lives--;
+
+
+    }
+
+    private void OnDestroy()
+    {
+        GCScript.inst.GetComponent<Animator>().ResetTrigger("Transition");
+        // find any monster that is still alive
+        GameObject[] monsters = GameObject.FindGameObjectsWithTag("Monster");
+        for (int i = 0; i < monsters.Length; i++)
+        {
+            Destroy(monsters[i]);
+        }
+
+        if (GCScript.inst.lives > 0) GCScript.inst.Transition();
     }
 
     void DeterminePosition()

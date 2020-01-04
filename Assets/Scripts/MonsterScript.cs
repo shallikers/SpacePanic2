@@ -189,9 +189,9 @@ public class MonsterScript : MonoBehaviour
         //hole check
         // floor check
         RaycastHit2D lefthitHole = Physics2D.Raycast(leftBottom, Vector2.down * bounds.extents.y, bounds.extents.y, layermaskHoles);
-        Debug.DrawRay(leftBottom, Vector2.down * bounds.extents.y, Color.green);
+        //Debug.DrawRay(leftBottom, Vector2.down * bounds.extents.y, Color.green);
         RaycastHit2D righthitHole = Physics2D.Raycast(rightBottom, Vector2.down * bounds.extents.y, bounds.extents.y, layermaskHoles);
-        Debug.DrawRay(rightBottom, Vector2.down * bounds.extents.y, Color.green);
+        //Debug.DrawRay(rightBottom, Vector2.down * bounds.extents.y, Color.green);
 
         // if the hole is full make the hole hit inactive
         if (lefthitHole)
@@ -363,10 +363,10 @@ public class MonsterScript : MonoBehaviour
 
     }
 
-    public void KillMe()
+    public void KillMe(bool force = false)
     {
         // emerging monsters cannot be killed
-        if (emerging)
+        if (emerging && !force)
         {
             return;
         }
@@ -581,7 +581,7 @@ public class MonsterScript : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        Debug.Log(gameObject.tag+ " / " + collision.gameObject.tag);
+        // Debug.Log(gameObject.tag+ " / " + collision.gameObject.tag);
         if (falling)
         {
             if (collision.gameObject.tag == "Hole")
@@ -597,21 +597,20 @@ public class MonsterScript : MonoBehaviour
             }
             if (collision.gameObject.tag == "Monster")
             {
-                if(collision.gameObject.GetComponent<MonsterScript>().scoreValue != 0)
+                if (collision.gameObject.GetComponent<MonsterScript>().scoreValue != 0)
                 {
-                    
-                    collision.gameObject.GetComponent<MonsterScript>().KillMe();
- //                   if(!collision.gameObject.GetComponent<MonsterScript>().inHole) scoreShown = true;
+                    collision.gameObject.GetComponent<MonsterScript>().KillMe(true);
                 }
-
-
-                //if (!collision.gameObject.GetComponent<MonsterScript>().scoreShown)
-                //{
-                //    collision.gameObject.GetComponent<MonsterScript>().KillMe();
-                //}              
             }
         }
+
+        // player kill code
+        if (collision.gameObject.tag == "Player")
+        {
+            collision.gameObject.GetComponent<PlayerScript>().KillMe();
+        }
     }
+
 
 
 }

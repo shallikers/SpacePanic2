@@ -41,6 +41,8 @@ public class GCScript : MonoBehaviour
     public float halfWidth;
     public float holeWidth;
 
+    private float scoreTimer;
+
 
     //Game Objects
     public GameObject[] layouts = new GameObject[10];
@@ -66,17 +68,25 @@ public class GCScript : MonoBehaviour
 
         holeWidth = redMonster.GetComponent<SpriteRenderer>().bounds.size.x;
 
+        Application.targetFrameRate = 30;
+
     }
 
     // Update is called once per frame
     void Update()
     {
         // calculate half height
-        Camera camera = Camera.main;
-        halfHeight = camera.orthographicSize;
-        halfWidth = camera.aspect * halfHeight;
+        //Camera camera = Camera.main;
+        //halfHeight = camera.orthographicSize;
+        //halfWidth = camera.aspect * halfHeight;
 
-        ScoreAndLives.GetComponent<TextMeshProUGUI>().text = "Score: " + score + "    Lives: " + lives;
+        if(Time.time > scoreTimer)
+        {
+            ScoreAndLives.GetComponent<TextMeshProUGUI>().text = "Score: " + score + "    Lives: " + lives;
+            oxygenLevelScript.UpdateLevel();
+            scoreTimer = Time.time + 0.5f;
+        }
+    
 
     }
 
@@ -87,6 +97,7 @@ public class GCScript : MonoBehaviour
 
     public void Transition()
     {
+
         GetComponent<Animator>().SetTrigger("Transition");
     }
 

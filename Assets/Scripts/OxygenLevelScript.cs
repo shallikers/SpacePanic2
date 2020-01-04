@@ -15,13 +15,6 @@ public class OxygenLevelScript : MonoBehaviour
         
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-        if (!inPlay) return;
-        gameObject.GetComponent<SpriteRenderer>().size = new Vector2(
-            1-Mathf.InverseLerp(startTime, endTime, Time.time), 1f);
-    }
 
     public void StartCountDown()
     {
@@ -29,6 +22,13 @@ public class OxygenLevelScript : MonoBehaviour
         endTime = Time.time + GCScript.inst.oxygenTime;
         inPlay = true;
         gameObject.GetComponent<SpriteRenderer>().size = new Vector2(1f, 1f);
+    }
+
+    public void UpdateLevel()
+    {
+        if (!inPlay) return;
+        gameObject.GetComponent<SpriteRenderer>().size = new Vector2(
+            1 - Mathf.InverseLerp(startTime, endTime, Time.time), 1f);
     }
 
     public void StopCountDown()
