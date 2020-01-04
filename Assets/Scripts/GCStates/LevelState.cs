@@ -12,6 +12,8 @@ public class LevelState : StateMachineBehaviour
         GCScript.inst.messageText.SetActive(true);
         GCScript.inst.SetMessageText("Level " + GCScript.inst.level);
 
+     
+
         // We need to build the level
         GCScript.inst.ActivateLayout(1);
 
@@ -39,7 +41,6 @@ public class LevelState : StateMachineBehaviour
         // and the player
         GCScript.inst.activePlayer = Instantiate(GCScript.inst.playerPrefab);
         GCScript.inst.activePlayer.transform.position = new Vector3(-1.5f, 1f, 0);
-
         GCScript.inst.oxygenLevelScript.StartCountDown();
 
     }
