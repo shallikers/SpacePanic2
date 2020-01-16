@@ -53,7 +53,6 @@ public class PlayerScript : MonoBehaviour
             if (girders[i].transform.position.y < lowestGirder)
                 lowestGirder = girders[i].transform.position.y;
         }
-        //digger = GameObject.Find("digger");
         diggerOffset = digger.transform.localPosition.x * transform.localScale.x;
         digger.SetActive(false);
     }
@@ -61,8 +60,23 @@ public class PlayerScript : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        // raycast down and up to see if we are on the ground etc
+        // check if dead
+        if (dead)
+        {
+            rb.velocity = Vector3.zero;
+            return;
+        }
 
+        // Check if fallen off the screen
+        if (transform.position.y < lowestGirder - 1f)
+        {
+            KillMe();
+            return;
+        }
+
+
+
+        // raycast down and up to see if we are on the ground etc
         leftBottom = new Vector3(bc.bounds.min.x, bc.bounds.min.y, 0);
         rightBottom = new Vector3(bc.bounds.max.x, bc.bounds.min.y, 0);
         leftCentre = new Vector3(bc.bounds.min.x, bc.bounds.center.y, 0);
@@ -87,7 +101,7 @@ public class PlayerScript : MonoBehaviour
                 hole = null;
 
         //quantise the digger position to make it easier to line up the holes
-        diggerPositionX = Mathf.Round(diggerPositionX * 4) / 4;
+        diggerPositionX = Mathf.Round(diggerPositionX * 3) / 3;
 
         DeterminePosition();
         GetInputAndMove();
@@ -102,6 +116,11 @@ public class PlayerScript : MonoBehaviour
         bool down = Input.GetKey(KeyCode.DownArrow) && ladderDown;
         bool dig = Input.GetKey(KeyCode.D);
         bool fill = Input.GetKey(KeyCode.F);
+
+        if (transform.position.y <= lowestGirder) dig = false;  // cannot dig on the lowest girder
+
+     
+
 
         float hSpeed = 0;
         float vSpeed = 0;
@@ -163,6 +182,8 @@ public class PlayerScript : MonoBehaviour
             digger.SetActive(false);
         }
 
+
+
         rb.velocity = new Vector3(hSpeed, vSpeed, 0);
         
 
@@ -172,9 +193,9 @@ public class PlayerScript : MonoBehaviour
     {
         if (dead) return;
         dead = true;
-        Destroy(gameObject, 0.5f);
+        Destroy(gameObject, 2f);
         GetComponent<ParticleSystem>().Play();
-        GetComponent<SpriteRenderer>().enabled = false;
+        //GetComponent<SpriteRenderer>().enabled = false;
         bc.enabled = false;
         GCScript.inst.lives--;
 
@@ -185,12 +206,12 @@ public class PlayerScript : MonoBehaviour
     {
         GCScript.inst.GetComponent<Animator>().ResetTrigger("Transition");
         // find any monster that is still alive
-        GameObject[] monsters = GameObject.FindGameObjectsWithTag("Monster");
-        for (int i = 0; i < monsters.Length; i++)
-        {
-            Destroy(monsters[i]);
-        }
-
+        //GameObject[] monsters = GameObject.FindGameObjectsWithTag("Monster");
+        //for (int i = 0; i < monsters.Length; i++)
+        //{
+        //    Destroy(monsters[i]);
+        //}
+        GCScript.inst.anim.SetFloat("Lives", GCScript.inst.lives);
         if (GCScript.inst.lives > 0) GCScript.inst.Transition();
     }
 

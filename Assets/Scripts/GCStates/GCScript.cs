@@ -17,6 +17,7 @@ public class GCScript : MonoBehaviour
     public GameObject ScoreAndLives;
     public GameObject UXCanvas;
     public OxygenLevelScript oxygenLevelScript;
+    public GameObject theLevel;
 
 
 
@@ -61,14 +62,11 @@ public class GCScript : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        //layouts[1] = GameObject.Find("Layout1");
-        //layouts[1].SetActive(false);
-        //layouts[0] = GameObject.Find("LayoutMenu");
-        layouts[0].SetActive(true);
 
+     
         holeWidth = redMonster.GetComponent<SpriteRenderer>().bounds.size.x;
 
-        Application.targetFrameRate = 30;
+        //Application.targetFrameRate = 30;
 
     }
 
@@ -101,16 +99,34 @@ public class GCScript : MonoBehaviour
         GetComponent<Animator>().SetTrigger("Transition");
     }
 
-    public void ActivateLayout(int i)
+    public void CreateLayout(int i)
     {
-        foreach(GameObject layout in layouts)
-        {
-            if (layout != null) layout.SetActive(false);
-        }
-        if (i < layouts.Length  && i>=-1)
-        {
-            layouts[i].SetActive(true);
-        }
-
+        if (theLevel != null) DestroyLevel();
+        theLevel = Instantiate(layouts[i]);
     }
+
+    public void AddToLevel(GameObject go)
+    {
+        go.transform.SetParent(theLevel.transform);
+    }
+
+    public void DestroyLevel()
+    {
+        if (theLevel != null) Destroy(theLevel);
+        theLevel = null;
+    }
+
+
+    //public void ActivateLayout(int i)
+    //{
+    //    foreach(GameObject layout in layouts)
+    //    {
+    //        if (layout != null) layout.SetActive(false);
+    //    }
+    //    if (i < layouts.Length  && i>=-1)
+    //    {
+    //        layouts[i].SetActive(true);
+    //    }
+
+    //}
 }

@@ -9,6 +9,7 @@ public class MenuState : StateMachineBehaviour
     override public void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
         GCScript.inst.menuCanvas.SetActive(true);
+        GCScript.inst.layouts[0].SetActive(true);  // activate the menu backdrop
         //GCScript.inst.anim.SetTrigger("Transition");  // Debug code to take the pain of button pressing away
     }
 
@@ -22,6 +23,7 @@ public class MenuState : StateMachineBehaviour
     override public void OnStateExit(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
         GCScript.inst.menuCanvas.SetActive(false);
+        GCScript.inst.layouts[0].SetActive(false);
     }
 
     // OnStateMove is called right after Animator.OnAnimatorMove()

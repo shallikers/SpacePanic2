@@ -10,19 +10,18 @@ using TMPro;
 
 public class TextFaderScript : MonoBehaviour {
 
-    [SerializeField]
-    readonly float fadeTime;
-    [SerializeField]
-    readonly float showTime;
-    [SerializeField]
-    readonly string text1;
-    [SerializeField]
-    readonly string text2;
-    [SerializeField]
+    
+    public float fadeTime;
+
+   public float showTime;
+ 
+  public string text1;
+
+ public string text2;
+
     int state;  //0 fadein, 1 show, 2 fade out
 
     float nextChangeTime = 0;
-    private int interval = 5;
 
     TextMeshProUGUI theText;
         
@@ -35,8 +34,7 @@ public class TextFaderScript : MonoBehaviour {
     // Update is called once per frame
     void Update()
     {
-        if(Time.frameCount % interval == 0)
-        {
+
             if (Time.fixedTime > nextChangeTime)
             {
                 switch (state)
@@ -69,5 +67,5 @@ public class TextFaderScript : MonoBehaviour {
                 }
             }
         }
-    }
+    
 }
