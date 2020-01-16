@@ -8,6 +8,7 @@ public class GameOverState : StateMachineBehaviour
     override public void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
         GCScript.inst.messageText.SetActive(true);
+        GCScript.inst.DestroyLevel();
         GCScript.inst.SetMessageText("Game Over");
     }
 
@@ -21,7 +22,6 @@ public class GameOverState : StateMachineBehaviour
     override public void OnStateExit(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
         GCScript.inst.messageText.SetActive(false);
-
     }
 
     // OnStateMove is called right after Animator.OnAnimatorMove()

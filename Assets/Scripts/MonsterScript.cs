@@ -49,6 +49,7 @@ public class MonsterScript : MonoBehaviour
     {
         GameObject go = Instantiate(GCScript.inst.redMonster, t);
         go.GetComponent<MonsterScript>().SetColour(c);
+        GCScript.inst.AddToLevel(go);
         return go;
     }
 
@@ -127,6 +128,15 @@ public class MonsterScript : MonoBehaviour
 
     void FixedUpdate()
     {
+        if (GCScript.inst.activePlayer != null)
+        {
+            if (GCScript.inst.activePlayer.GetComponent<PlayerScript>().dead)
+            {
+                rb.velocity = Vector3.zero;
+                return;
+            }
+        }
+
         bounds = bc.bounds;
         leftBottom = new Vector3(bounds.min.x, bounds.min.y, 0);
         rightBottom = new Vector3(bounds.max.x, bounds.min.y, 0);

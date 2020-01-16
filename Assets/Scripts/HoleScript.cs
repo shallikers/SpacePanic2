@@ -10,6 +10,8 @@ public class HoleScript : MonoBehaviour
     public GameObject monster;
     public GameObject layouts;
     public bool dig, dug, digging, fill, filling, auto, full, force;
+    public int frameCount;
+    public int frameWait = 5;
 
     // Start is called before the first frame update
     void Start()
@@ -30,22 +32,30 @@ public class HoleScript : MonoBehaviour
         if (digging && (dig || auto))
         {
             Dig();
+            frameCount = frameWait;
          }
         else if (digging & !dig & !auto)
         {
-            digging = false;
-            filling = true;
-            auto = true;
+            if(frameCount-- < 1)
+            {
+                digging = false;
+                filling = true;
+                auto = true;
+            }           
         }
         if (filling & (fill || auto))
         {
             Fill();
-         }
+            frameCount = frameWait;
+        }
         else if (filling & !fill & !auto)
         {
-            digging = true;
-            filling = false;
-            auto = true;
+            if (frameCount-- < 1)
+            {
+                digging = true;
+                filling = false;
+                auto = true;
+            }
         }
         fill = false;
         dig = false;
@@ -65,17 +75,17 @@ public class HoleScript : MonoBehaviour
         if (!centrehit) return null; 
 
         // define the girder
+
         girder = centrehit.rigidbody.gameObject;
 
         //instantiate the hole
         GameObject hole = Instantiate(GCScript.inst.hole);
-        hole.transform.parent = GameObject.Find("Layouts").transform;
+        GCScript.inst.AddToLevel(hole);
         hole.transform.position = new Vector3(x, girder.transform.position.y);
         hole.transform.localScale = new Vector3(0, hole.transform.localScale.y, 1);
 
         // split the girder
         GameObject rightGirder = girder.GetComponent<GirderScript>().split(hole.transform.position.x);
-        rightGirder.transform.parent = GameObject.Find("Layouts").transform;
 
         // tell the hole it is connected to girders
         hole.GetComponent<HoleScript>().leftGirder = girder;
